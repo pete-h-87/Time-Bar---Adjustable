@@ -1,7 +1,7 @@
 import './App.css';
 import TimeLogger from './components/timelogger/TimeLogger';
 
-function App(props) {
+function App() {
   return (
     <div className="page">
       <TimeLogger />

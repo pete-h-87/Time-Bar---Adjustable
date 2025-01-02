@@ -1,60 +1,86 @@
 .dropbtn {
-    background-color: #3498db;
-    color: white;
-    padding: 0px;
-    font-size: 16px;
-    border: none;
-  }
-  
-  .dropbtn:hover,
-  .dropbtn:focus {
-    background-color: #2980b9;
-  }
-  
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .dropdownContent {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 160px;
-    overflow: auto;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-  }
-  
-  .dropdownContent a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-  }
-  
-  .dropdown a:hover {
-    background-color: #ddd;
-  }
-  
-  .show {
-    display: block;
-  }
-  
-  .timeDiv {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
-  
-  .timeDiv > div {
-    flex: 1;
-  }
+  background-color: #3498db;
+  color: white;
+  padding: 0px;
+  font-size: 16px;
+  border: none;
+}
 
-  .canvas {
-    width: 510px;
-    height: 50px;
-    background-color: lightblue;
-    margin: 5px 0 0 100px;
-    border: 1px solid black;
-  }
+.dropbtn:hover,
+.dropbtn:focus {
+  background-color: #2980b9;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdownContent {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdownContent a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown a:hover {
+  background-color: #ddd;
+}
+
+.show {
+  display: block;
+}
+
+.timeDiv {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.timeDiv > div {
+  flex: 1;
+}
+
+.canvas {
+  width: 510px;
+  height: 47px;
+  background-color: lightblue;
+  margin: 5px 0 0 100px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-left: 100px;
+}
+
+.theTime,
+.theData {
+  margin: 10px 0;
+}
+
+.information {
+  margin-left: 100px;
+}
+
+.welcome {
+  margin-left: 140px;
+}
+
+.instructions {
+  margin-top: 10px;
+  margin-left: 50px;
+}

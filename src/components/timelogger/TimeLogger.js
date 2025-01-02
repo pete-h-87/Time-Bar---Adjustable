@@ -15,14 +15,13 @@ const spanRef = React.createRef();
 const spanClickedRef = React.createRef(false);
 const yRef = React.createRef();
 
-
-
-export default function TimeLogger(props) {
+export default function TimeLogger() {
   //UI STATES
   const [time, setTime] = useState();
   const [selectedItem, setSelectedItem] = useState(null);
   const [datasource, setDatasource] = useState(dummyData);
   const [canvasClicked, setCanvasClicked] = useState(false);
+  const [previousSelectedItem, setPreviousSelectItem] = useState(null);
 
   //CONVERTER FUNCTIONS
   function decimalToXpoint(hourDecimal) {
@@ -83,6 +82,7 @@ export default function TimeLogger(props) {
       let id = Number(clickedItemData);
       let item = datasource.find((element) => element.ID === id);
       setSelectedItem(item);
+      setPreviousSelectItem(item);
       let moveMode = "itemMove";
       let hasNeighbor = false;
       for (let index = 0; index < datasource.length; index++) {
@@ -100,7 +100,6 @@ export default function TimeLogger(props) {
         const anElement = datasource[index];
         const target = e.target.dataset;
         if (e.clientX > e.target.offsetLeft + e.target.offsetWidth * 0.8) {
-          console.log(e.target.offsetWidth);
           if (Number(target.end) === anElement.Start) {
             if (hasNeighbor) {
               moveMode = "itemResizeSplit";
@@ -350,7 +349,7 @@ export default function TimeLogger(props) {
     }
   });
 
-  //new timespan creation functions
+  //NEW TIMESPAN CREATION FUNCTIONS
   function canvasMouseDown(e) {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -432,6 +431,7 @@ export default function TimeLogger(props) {
     mouseMoveMode.current = "";
     removeMoveCursor();
     setSelectedItem(null);
+    setPreviousSelectItem(selectedItem);
   }
 
   //HELPER FUNCITONS
@@ -484,65 +484,95 @@ export default function TimeLogger(props) {
 
   return (
     <div>
-      <div className={styles.timeDivAndCanv}>
-        <div style={{ margin: "100px 0 0 100px" }} className={styles.timeDiv}>
-          <div>00:00</div>
-          <div>24:00</div>
+      <div className={styles.bigContainer}>
+        <div className={styles.timeDivAndCanv}>
+          <div style={{ margin: "30px 0 0 100px" }} className={styles.timeDiv}>
+            <div>00:00</div>
+            <div>24:00</div>
+          </div>
+          <div
+            className={styles.canvas}
+            id="canvas"
+            ref={canvasRef}
+            onMouseMove={canvasMouseHover}
+            onMouseDown={canvasMouseDown}
+          />
         </div>
-        <div
-          className={styles.canvas}
-          id="canvas"
-          ref={canvasRef}
-          onMouseMove={canvasMouseHover}
-          onMouseDown={canvasMouseDown}
-        />
-      </div>
-      {datasource.map((item) => (
-        <div>
+        {datasource.map((item) => (
           <div>
-            <button
-              ref={spanRef}
-              key={item.ID}
-              data-id={item.ID}
-              data-start={item.Start}
-              data-end={item.End}
-              data-text={item.Text}
-              style={{
-                position: "absolute",
-                left: decimalToXpoint(item.Start),
-                top: "130px",
-                width: decimalToXpoint(item.End) - decimalToXpoint(item.Start),
-                height: "40px",
-                backgroundColor: item.Status == "W" ? "red" : "blue",
-                border:
-                  selectedItem &&
-                  selectedItem.ID === item.ID &&
-                  mouseMoveMode.current !== "itemResizeSplit"
-                    ? "2px solid yellow"
-                    : "1px solid black",
-                borderRadius: "5px",
-              }}
-              title={item.Text}
-              onContextMenu={handleRightClick}
-              className={styles.dropbtn}
-            >
-              <div id="myDropdown" className={styles.dropdownContent}>
-                {defaultTasks.map((text, index) => (
-                  <a
-                    key={index}
-                    href={`taskNumber: ${index}`}
-                    onMouseDown={(e) => handleTaskClick(e, text)}
-                  >
-                    {text}
-                  </a>
-                ))}
+            <div>
+              <button
+                ref={spanRef}
+                key={item.ID}
+                data-id={item.ID}
+                data-start={item.Start}
+                data-end={item.End}
+                data-text={item.Text}
+                style={{
+                  position: "absolute",
+                  left: decimalToXpoint(item.Start),
+                  top: "60px",
+                  width:
+                    decimalToXpoint(item.End) - decimalToXpoint(item.Start),
+                  height: "40px",
+                  backgroundColor: item.Status == "W" ? "red" : "blue",
+                  border:
+                    selectedItem &&
+                    selectedItem.ID === item.ID &&
+                    mouseMoveMode.current !== "itemResizeSplit"
+                      ? "2px solid yellow"
+                      : "1px solid black",
+                  borderRadius: "5px",
+                }}
+                title={item.Text}
+                onContextMenu={handleRightClick}
+                className={styles.dropbtn}
+              >
+                <div id="myDropdown" className={styles.dropdownContent}>
+                  {defaultTasks.map((text, index) => (
+                    <a
+                      key={index}
+                      href={`taskNumber: ${index}`}
+                      onMouseDown={(e) => handleTaskClick(e, text)}
+                    >
+                      {text}
+                    </a>
+                  ))}
+                </div>
+              </button>
+            </div>
+          </div>
+        ))}
+        <div className={styles.infoContainer}>
+        <div className={styles.welcome}>Click around! Refresh when needed.</div>
+          <div className={styles.theTime}>Time: {time}</div>
+          <div className={styles.theData}>
+            Clicked Item:{" "}
+            {previousSelectedItem ? (
+              <div className={styles.information}>
+                <div>ID: {previousSelectedItem.ID}</div>
+                <div>Start: {previousSelectedItem.Start? previousSelectedItem.Start : "N/A"}</div>
+                <div>End: {previousSelectedItem.End}</div>
+                <div>Job: {previousSelectedItem.Text? previousSelectedItem.Text : "**Right-click the timespan to set job"}</div>
+                <div>Status: {previousSelectedItem.Status? previousSelectedItem.Status : "**Hold T or W while clicking to change status"}</div>
               </div>
-            </button>
+            ) : (
+              "**click on a span!*"
+            )}
+          </div>
+          <div className={styles.instructions}>
+            <ul>
+              <li>Click and drag on light blue to create a new time</li>
+              <li>Click and drag a time span to move it around</li>
+              <li>Click and drag the start/end to adjust</li>
+              <li>Hold delete and left-click a span to delete</li>
+              <li>Hold W or T and left-click a span to change status</li>
+              <li>Right-click to bring up a menu to change job description</li>
+              <li>To scrub, drag mouse down while dragging span</li>
+            </ul>
           </div>
         </div>
-      ))}
-      <div>Time={time}</div>
-      <div>SelectedData:{JSON.stringify(selectedItem)}</div>
+      </div>
     </div>
   );
 }
