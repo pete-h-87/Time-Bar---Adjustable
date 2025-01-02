@@ -1,44 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styles from "./TimeLogger.module.css";
+import { dummyData, defaultTasks } from "../../data/dummyData";
 
-const defaultCompanyTasks = [
-  "Bandak: Service on machine",
-  "Bandak: Service on gantry",
-  "Bandak: Service on valves",
-  "Bandak: Service on hydraulics",
-];
-
-const defaultData = [
-  {
-    ID: 1,
-    Start: 6.0,
-    End: 9.5,
-    Text: "Bandak: Service on machine",
-    Status: "T",
-  },
-  {
-    ID: 2,
-    Start: 9.5,
-    End: 11.5,
-    Text: "Bandak: Service on machine",
-    Status: "W",
-  },
-  {
-    ID: 3,
-    Start: 12.0,
-    End: 15.0,
-    Text: "Bandak: Adjustment of gantry",
-    Status: "W",
-  },
-  {
-    ID: 4,
-    Start: 15.0,
-    End: 19.0,
-    Text: "Bandak: Adjustment of gantry",
-    Status: "T",
-  },
-];
-
+//CALCULATION STATES -REFS
 const startTimeRef = React.createRef();
 const endTimeRef = React.createRef();
 const mouseMoveMode = React.createRef("");
@@ -49,15 +13,18 @@ const resizingStart = React.createRef(false);
 const canvasRef = React.createRef(false);
 const spanRef = React.createRef();
 const spanClickedRef = React.createRef(false);
-const canvasClickedRef = React.createRef(false);
 const yRef = React.createRef();
 
+
+
 export default function TimeLogger(props) {
+  //UI STATES
   const [time, setTime] = useState();
   const [selectedItem, setSelectedItem] = useState(null);
-  const [datasource, setDatasource] = useState(defaultData);
+  const [datasource, setDatasource] = useState(dummyData);
   const [canvasClicked, setCanvasClicked] = useState(false);
 
+  //CONVERTER FUNCTIONS
   function decimalToXpoint(hourDecimal) {
     let posFactor = hourDecimal / 24;
     let posX = 510 * posFactor;
@@ -79,6 +46,7 @@ export default function TimeLogger(props) {
     return num;
   }
 
+  //KEYDOWN LISTENER
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "w" && selectedItem) {
@@ -104,6 +72,7 @@ export default function TimeLogger(props) {
     };
   }, [selectedItem, datasource]);
 
+  //EXISTING TIMESPANS - CLICK, MOVE, AND RESIZE FUNCTIONS
   function timespanMouseDown(e) {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -119,7 +88,6 @@ export default function TimeLogger(props) {
       for (let index = 0; index < datasource.length; index++) {
         const anElement = datasource[index];
         const target = e.target.dataset;
-
         if (
           Number(target.end) === anElement.Start ||
           Number(target.start) === anElement.End
@@ -128,31 +96,26 @@ export default function TimeLogger(props) {
           break;
         }
       }
-
       for (let index = 0; index < datasource.length; index++) {
         const anElement = datasource[index];
         const target = e.target.dataset;
         if (e.clientX > e.target.offsetLeft + e.target.offsetWidth * 0.8) {
-          console.log(e.target.offsetWidth)
+          console.log(e.target.offsetWidth);
           if (Number(target.end) === anElement.Start) {
             if (hasNeighbor) {
-              // console.log("1. end of div, SPLITTING");
               moveMode = "itemResizeSplit";
               resizingStart.current = false;
               break;
             } else {
-              // console.log("2. end of div, bumping, but NOT splitting");
               moveMode = "itemResizeEnd";
             }
           } else {
-            // console.log("3. end of div, but NOT bumping");
             moveMode = "itemResizeEnd";
           }
         } else if (
           e.clientX <
           e.target.offsetLeft + e.target.offsetWidth * 0.2
         ) {
-        //   console.log("left side WEAK")
           if (Number(target.start) === anElement.End) {
             if (hasNeighbor) {
               moveMode = "itemResizeSplit";
@@ -173,7 +136,6 @@ export default function TimeLogger(props) {
   }
 
   function timespanMouseMove(e) {
-    // if (spanClickedRef.current === true) {
     e.preventDefault();
     spanRef.current = true;
     if (
@@ -237,29 +199,25 @@ export default function TimeLogger(props) {
       cursor: cursorClass,
       element: e.target,
     };
-    e.target.classList.add(cursorClass); //confused on this
-    // }
+    e.target.classList.add(cursorClass);
   }
 
   function handleItemMoveAndResize(e) {
     e.preventDefault();
     let nowPosX = e.clientX;
     let distancePoints = nowPosX - mouseDownXPos.current;
-    if (Math.abs(distancePoints) < 5) return; //changed here to have it increment by .25, or 15 minutes
+    if (Math.abs(distancePoints) < 5) return; //increment by .25, or 15 minutes
     let timeMovedFactor = distancePoints / 510;
     let timeMovedHours = timeMovedFactor * 24;
     let newState = [...datasource];
-    let clickedSpan = newState.find((item) => item.ID === selectedItem.ID); // now, we can find the ID because
-    let newStart = clickedSpan.Start + Math.round(timeMovedHours * 4) / 4; // the CLICK is first, the movement is second
+    let clickedSpan = newState.find((item) => item.ID === selectedItem.ID);
+    let newStart = clickedSpan.Start + Math.round(timeMovedHours * 4) / 4;
     let newEnd = clickedSpan.End + Math.round(timeMovedHours * 4) / 4;
-
     const currentY = e.clientY;
     const deltaY = currentY - yRef.current;
-
     if (distancePoints > 0 && mouseMoveMode.current === "itemMove") {
       newEnd = getOverlapBorder(newEnd, true, true);
       newStart = getOverlapBorder(newStart, true, false);
-
       if (deltaY > 50 && deltaY < 100) {
         newStart = clickedSpan.Start + Math.round(timeMovedHours * 4) / 12;
         newEnd = clickedSpan.End + Math.round(timeMovedHours * 4) / 12;
@@ -272,7 +230,6 @@ export default function TimeLogger(props) {
     } else if (distancePoints < 0 && mouseMoveMode.current === "itemMove") {
       newEnd = getOverlapBorder(newEnd, false, false);
       newStart = getOverlapBorder(newStart, false, true);
-
       if (deltaY > 50 && deltaY < 100) {
         newStart = clickedSpan.Start + Math.round(timeMovedHours * 4) / 12;
         newEnd = clickedSpan.End + Math.round(timeMovedHours * 4) / 12;
@@ -353,21 +310,11 @@ export default function TimeLogger(props) {
     setSelectedItem(null);
   }
 
+  //TASK SETTING FUNCTIONS
   function handleRightClick(e) {
     e.preventDefault();
     e.stopPropagation();
     document.getElementById("myDropdown").classList.toggle(styles.show);
-
-    // // Get the dropdown element
-    // const dropdown = document.getElementById("myDropdown");
-
-    // // Set the position of the dropdown to the mouse event coordinates
-    // dropdown.style.left = `${e.clientX}px`;
-    // dropdown.style.top = `${e.clientY}px`;
-
-    // // Toggle the dropdown visibility
-    // dropdown.classList.toggle(styles.show);
-
     let clickedItemData = e.target.dataset["id"];
     let id = Number(clickedItemData);
     let clickedSpan = datasource.find((item) => item.ID === id);
@@ -375,31 +322,15 @@ export default function TimeLogger(props) {
   }
 
   function handleTaskClick(e, text) {
-    // e.preventDefault();
     selectedItem.Text = text;
-    setSelectedItem({ ...selectedItem }); // Update state to trigger re-render
-    document.getElementById("myDropdown").classList.remove(styles.show); // Hide dropdown
+    setSelectedItem({ ...selectedItem });
+    document.getElementById("myDropdown").classList.remove(styles.show);
   }
 
-  // HW - scrubbing
-  // HW - middle click to set and scrub start position?
-  // HW - clean up right click
-
-  // HW - have the time show only in the parent div, not the document?
-  // HW - when scrubbing, round the end to match bumping into a neighbor as to keep the same length of time
-  // HW - devExtreme - abilitiy to copy a span and move it to another day's div
-
-  // HW - tooltip, info div following the mouse for time on canvas move
-  // HW - double up the renders - correct problems
-  // HW - combine all useEffects into one, and add an empty array [] for it to fire just once, not all the time
-  // HW - change to have addEventListener go only ONCE (using the []) - by combinging all functions into their respective mouse functions
-  // HW - rmeove title and hour shower - change to mouse box that follow mouse (a div? z-index 999 floating with mouse) position: absolute - top and left plus some pixels above the mouse
-
-  // ask camilla for CSS
-
+  //EVENT LISTENERS
   useEffect(() => {
     if (!canvasClicked) {
-      document.addEventListener("mousedown", timespanMouseDown); // right now, it's continually adding. change that
+      document.addEventListener("mousedown", timespanMouseDown);
       document.addEventListener("mousemove", timespanMouseMove);
       document.addEventListener("mouseup", timespanMouseUp);
       return () => {
@@ -410,17 +341,16 @@ export default function TimeLogger(props) {
     }
 
     if (canvasClicked) {
-      // document.addEventListener("mousemove", canvasMouseHover)
       document.addEventListener("mousemove", canvasMouseMove);
       document.addEventListener("mouseup", canvasMouseUp);
       return () => {
-        // document.removeEventListener("mousemove", canvasMouseHover)
         document.removeEventListener("mousemove", canvasMouseMove);
         document.removeEventListener("mouseup", canvasMouseUp);
       };
     }
   });
 
+  //new timespan creation functions
   function canvasMouseDown(e) {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -465,20 +395,17 @@ export default function TimeLogger(props) {
     if (mouseMoveMode.current === "newItemEnd") {
       let nowPosX = e.clientX;
       let distancePoints = nowPosX - canvasMouseDownXPos.current;
-      if (Math.abs(distancePoints) < 5) return; //changed here to have it increment by .25, or 15 minutes
+      if (Math.abs(distancePoints) < 5) return; //increment by .25, or 15 minutes
       let timeMovedFactor = distancePoints / 510;
       let timeMovedHours = timeMovedFactor * 24;
       let newState = [...datasource];
       let changedItem = newState.find((item) => item.ID === selectedItem.ID);
       let newEnd = startTimeRef.current + Math.round(timeMovedHours * 4) / 4;
-
       const currentY = e.clientY;
       const deltaY = currentY - yRef.current;
-
       if (distancePoints > 0 && mouseMoveMode.current === "newItemEnd") {
         newEnd = getOverlapBorder(newEnd, true, true);
         changedItem.End = newEnd;
-
         // if (deltaY > 50 && deltaY < 100) {
         //   const x = (Math.round(timeMovedHours * 4) / 12)
         //   console.log(x)
@@ -526,7 +453,7 @@ export default function TimeLogger(props) {
         if (directionRight === true) {
           if (leadingEdge === true) {
             if (newTime > element.Start && newTime < element.End) {
-              result = element.Start; // Update result instead of returning
+              result = element.Start;
             }
           } else if (leadingEdge === false) {
             if (
@@ -552,37 +479,29 @@ export default function TimeLogger(props) {
         }
       }
     }
-    return result; // Return the result after the loop
+    return result;
   }
 
   return (
     <div>
-      {/* <div style={{ cursor: 'pointer' }}>Click</div> */}
-      <div style={{ margin: "100px 0 0 100px" }}>
-        00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+      <div className={styles.timeDivAndCanv}>
+        <div style={{ margin: "100px 0 0 100px" }} className={styles.timeDiv}>
+          <div>00:00</div>
+          <div>24:00</div>
+        </div>
+        <div
+          className={styles.canvas}
+          id="canvas"
+          ref={canvasRef}
+          onMouseMove={canvasMouseHover}
+          onMouseDown={canvasMouseDown}
+        />
       </div>
-      {/* render the above div depending on day selected */}
-      <div
-        style={{
-          width: "510px",
-          height: "50px",
-          backgroundColor: "lightblue",
-          margin: "5px 0 0 100px",
-          border: "1px solid black",
-        }}
-        id="canvas"
-        ref={canvasRef}
-        // onMouseMove={canvasMouseMove}
-        onMouseMove={canvasMouseHover}
-        onMouseDown={canvasMouseDown}
-        // onMouseUp={canvasMouseUp}
-      />
       {datasource.map((item) => (
         <div>
           <div>
             <button
               ref={spanRef}
-              //className='cursor-w-resize'
               key={item.ID}
               data-id={item.ID}
               data-start={item.Start}
@@ -602,17 +521,13 @@ export default function TimeLogger(props) {
                     ? "2px solid yellow"
                     : "1px solid black",
                 borderRadius: "5px",
-                // cursor: {cursor}
               }}
               title={item.Text}
               onContextMenu={handleRightClick}
               className={styles.dropbtn}
-              // onMouseDown={timespanMouseDown}
-              // onMouseUp={timespanMouseUp}
-              // onMouseMove={timespanMouseMove}
             >
               <div id="myDropdown" className={styles.dropdownContent}>
-                {defaultCompanyTasks.map((text, index) => (
+                {defaultTasks.map((text, index) => (
                   <a
                     key={index}
                     href={`taskNumber: ${index}`}
@@ -626,7 +541,6 @@ export default function TimeLogger(props) {
           </div>
         </div>
       ))}
-      {/* <div style={{position:'absolute', left:'100px', top: '130px', width: '510px', height:'40px', backgroundColor: 'red'}} title='03:45 - 12:30 - Customer: Brødrene Jacobsen: ' ></div> */}
       <div>Time={time}</div>
       <div>SelectedData:{JSON.stringify(selectedItem)}</div>
     </div>

@@ -41,3 +41,20 @@
     display: block;
   }
   
+  .timeDiv {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .timeDiv > div {
+    flex: 1;
+  }
+
+  .canvas {
+    width: 510px;
+    height: 50px;
+    background-color: lightblue;
+    margin: 5px 0 0 100px;
+    border: 1px solid black;
+  }
