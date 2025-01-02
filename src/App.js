@@ -1,13 +1,10 @@
 import './App.css';
+import TimeLogger from './components/timelogger/TimeLogger';
 
-function App() {
+function App(props) {
   return (
-    <div className="App">
-      <header>
-        <p>
-          Bonjour
-        </p>
-      </header>
+    <div className="page">
+      <TimeLogger />
     </div>
   );
 }
