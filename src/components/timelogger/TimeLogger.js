@@ -400,8 +400,8 @@ export default function TimeLogger() {
       let newState = [...datasource];
       let changedItem = newState.find((item) => item.ID === selectedItem.ID);
       let newEnd = startTimeRef.current + Math.round(timeMovedHours * 4) / 4;
-      const currentY = e.clientY;
-      const deltaY = currentY - yRef.current;
+      // const currentY = e.clientY;
+      // const deltaY = currentY - yRef.current;
       if (distancePoints > 0 && mouseMoveMode.current === "newItemEnd") {
         newEnd = getOverlapBorder(newEnd, true, true);
         changedItem.End = newEnd;
@@ -544,17 +544,34 @@ export default function TimeLogger() {
           </div>
         ))}
         <div className={styles.infoContainer}>
-        <div className={styles.welcome}>Click around! Refresh when needed.</div>
+          <div className={styles.welcome}>
+            Click around! Refresh when needed.
+          </div>
           <div className={styles.theTime}>Time: {time}</div>
           <div className={styles.theData}>
             Clicked Item:{" "}
             {previousSelectedItem ? (
               <div className={styles.information}>
                 <div>ID: {previousSelectedItem.ID}</div>
-                <div>Start: {previousSelectedItem.Start? previousSelectedItem.Start : "N/A"}</div>
+                <div>
+                  Start:{" "}
+                  {previousSelectedItem.Start
+                    ? previousSelectedItem.Start
+                    : "N/A"}
+                </div>
                 <div>End: {previousSelectedItem.End}</div>
-                <div>Job: {previousSelectedItem.Text? previousSelectedItem.Text : "**Right-click the timespan to set job"}</div>
-                <div>Status: {previousSelectedItem.Status? previousSelectedItem.Status : "**Hold T or W while clicking to change status"}</div>
+                <div>
+                  Job:{" "}
+                  {previousSelectedItem.Text
+                    ? previousSelectedItem.Text
+                    : "**Right-click the timespan to set job"}
+                </div>
+                <div>
+                  Status:{" "}
+                  {previousSelectedItem.Status
+                    ? previousSelectedItem.Status
+                    : "**Hold T or W while clicking to change status"}
+                </div>
               </div>
             ) : (
               "**click on a span!*"
