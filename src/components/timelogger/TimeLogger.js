@@ -515,7 +515,7 @@ export default function TimeLogger() {
                   width:
                     decimalToXpoint(item.End) - decimalToXpoint(item.Start),
                   height: "40px",
-                  backgroundColor: item.Status == "W" ? "red" : "blue",
+                  backgroundColor: item.Status === "W" ? "red" : "blue",
                   border:
                     selectedItem &&
                     selectedItem.ID === item.ID &&
