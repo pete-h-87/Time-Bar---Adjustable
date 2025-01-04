@@ -1,5 +1,7 @@
 This is a component for an adjustable time bar to make logging hours as simple as possible.
 
+Website: https://eztimebar.netlify.app/
+
  - Click and drag on light blue to create a new time.
  - Click and drag a time span to move it around.
  - Click and drag the start/end to adjust.
